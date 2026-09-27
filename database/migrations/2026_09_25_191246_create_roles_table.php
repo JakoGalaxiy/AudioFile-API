@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();  // admin, oyente, artista(si es que se implementa)
+            $table->string('name')->unique();  // admin, oyente, artista(si es que lo implementamos)
             $table->timestamps();
         });
     }

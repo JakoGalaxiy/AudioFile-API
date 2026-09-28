@@ -11,8 +11,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-// #[Fillable(['role_id', 'name', 'email', 'password'])]
-// #[Hidden(['password', 'remember_token'])]
+#[Fillable(['role_id', 'name', 'email', 'password'])]
+#[Hidden(['password', 'remember_token'])]
 
 class User extends Authenticatable
 {
@@ -34,5 +34,17 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function favoriteSongs()
+    {
+        // un usuario puyede tener muchas canciones en favoritos
+        return $this->belongsToMany(Song::class, 'favorites')->withTimestamps();
+    }
+
+    // un usuario puede tener muchas playlist
+    public function playlists()
+    {
+        return $this->hasMany(Playlist::class);
     }
 }

@@ -15,6 +15,12 @@ class Artist extends Model
         'stage_name',
         'verification_status',
     ];
+    
+    // un artista puede tener muchos albunes
+    public function albums()
+    {
+        return $this->hasMany(Album::class);
+    }
 
     // un artista pertenece a un usuario
     public function user()

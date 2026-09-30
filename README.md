@@ -1,58 +1,334 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API Spotify
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API del proyecto Spotify desarrollada con Laravel, PostgreSQL, Redis, MongoDB, Docker y Laravel Sanctum.
 
-## About Laravel
+Esta API actualmente permite:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* Registrar usuarios.
+* Iniciar sesión.
+* Generar tokens de autenticación automáticamente.
+* Probar el registro y login desde Postman.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 1. Requisitos
 
-## Learning Laravel
+Antes de comenzar, tener instalado:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* Git
+* Docker Desktop
+* Postman
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Comprobar Git:
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```powershell
+git --version
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Comprobar Docker:
 
-## Contributing
+```powershell
+docker --version
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 2. Clonar el proyecto
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Abrir PowerShell y ejecutar:
 
-## Security Vulnerabilities
+```powershell
+git clone URL_DEL_REPOSITORIO
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Entrar a la carpeta:
 
-## License
+```powershell
+cd api
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Cambiar a la rama de autenticación:
+
+```powershell
+git checkout feature/auth-api
+```
+
+---
+
+## 3. Crear el archivo `.env`
+
+Copiar el archivo de ejemplo:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+No utilizar ni compartir el `.env` de otra computadora.
+
+Cada integrante debe tener su propio `.env`.
+
+---
+
+## 4. Levantar Docker
+
+Desde la carpeta `api` ejecutar:
+
+```powershell
+docker compose up -d
+```
+
+Comprobar que los contenedores estén funcionando:
+
+```powershell
+docker compose ps
+```
+
+Los servicios principales deben aparecer como `Up` o `running`.
+
+La API estará disponible en:
+
+```text
+http://localhost:8000
+```
+
+---
+
+## 5. Generar la APP_KEY
+
+Si el `.env` tiene `APP_KEY` vacío, ejecutar:
+
+```powershell
+docker compose exec app php artisan key:generate
+```
+
+---
+
+## 6. Ejecutar las migraciones
+
+Ejecutar:
+
+```powershell
+docker compose exec app php artisan migrate
+```
+
+Esto crea las tablas necesarias en la base de datos.
+
+---
+
+## 7. Limpiar la configuración de Laravel
+
+Ejecutar:
+
+```powershell
+docker compose exec app php artisan optimize:clear
+```
+
+---
+
+# 8. Probar el registro en Postman
+
+Abrir Postman y crear una petición nueva.
+
+### Método
+
+```text
+POST
+```
+
+### URL
+
+```text
+http://localhost:8000/api/register
+```
+
+### Body
+
+Seleccionar:
+
+```text
+Body → raw → JSON
+```
+
+Enviar:
+
+```json
+{
+    "name": "Juanito",
+    "email": "juanito@test.com",
+    "password": "12345678"
+}
+```
+
+Presionar **Send**.
+
+Si funciona, la API debe responder con:
+
+```text
+201 Created
+```
+
+y devolver un usuario y un token.
+
+Ejemplo:
+
+```json
+{
+    "message": "Usuario registrado correctamente.",
+    "user": {
+        "id": "...",
+        "name": "Juanito",
+        "email": "juanito@test.com"
+    },
+    "token": "..."
+}
+```
+
+El `id` y el `token` serán diferentes para cada usuario.
+
+---
+
+# 9. Probar el Login en Postman
+
+Crear otra petición.
+
+### Método
+
+```text
+POST
+```
+
+### URL
+
+```text
+http://localhost:8000/api/login
+```
+
+### Body
+
+Seleccionar:
+
+```text
+Body → raw → JSON
+```
+
+Enviar las mismas credenciales utilizadas durante el registro:
+
+```json
+{
+    "email": "juanito@test.com",
+    "password": "12345678"
+}
+```
+
+Presionar **Send**.
+
+Si funciona, debe devolver una respuesta exitosa junto con un token.
+
+Ejemplo:
+
+```json
+{
+    "message": "Login exitoso.",
+    "user": {
+        "id": "...",
+        "name": "Juanito",
+        "email": "juanito@test.com"
+    },
+    "token": "..."
+}
+```
+
+---
+
+# 10. Problemas comunes
+
+### Docker no está iniciado
+
+Abrir Docker Desktop y volver a ejecutar:
+
+```powershell
+docker compose up -d
+```
+
+### Ver los contenedores
+
+```powershell
+docker compose ps
+```
+
+### Ver los logs de la aplicación
+
+```powershell
+docker compose logs app
+```
+
+### Limpiar caché de Laravel
+
+```powershell
+docker compose exec app php artisan optimize:clear
+```
+
+### Ver las rutas de la API
+
+```powershell
+docker compose exec app php artisan route:list --path=api
+```
+
+Deben aparecer:
+
+```text
+POST  api/login
+POST  api/register
+```
+
+---
+
+# 11. Importante
+
+No subir ni compartir el archivo:
+
+```text
+.env
+```
+
+El archivo que sí debe estar en GitLab es:
+
+```text
+.env.example
+```
+
+Cada integrante debe crear su propio `.env` usando:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+---
+
+# Resumen rápido
+
+Después de clonar el proyecto:
+
+```powershell
+cd api
+git checkout feature/auth-api
+Copy-Item .env.example .env
+docker compose up -d
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+docker compose exec app php artisan optimize:clear
+```
+
+Después abrir Postman y probar:
+
+```text
+POST http://localhost:8000/api/register
+```
+
+y:
+
+```text
+POST http://localhost:8000/api/login
+```
+
+Con esto se puede comprobar que la autenticación de la API funciona correctamente.

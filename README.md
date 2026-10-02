@@ -1,23 +1,21 @@
-# API Spotify
+# API y Web Spotify
 
-API del proyecto Spotify desarrollada con Laravel, PostgreSQL, Redis, MongoDB, Docker y Laravel Sanctum.
+Sistema completo del proyecto Spotify (API + Frontend) desarrollado con Laravel, PostgreSQL, Redis, MongoDB, Docker y Laravel Sanctum.
 
-Esta API actualmente permite:
+Esta aplicación permite:
 
-* Registrar usuarios.
-* Iniciar sesión.
-* Generar tokens de autenticación automáticamente.
-* Probar el registro y login desde Postman.
+* Registrar usuarios desde la interfaz web o Postman.
+* Iniciar sesión de forma segura con persistencia de token en el navegador (`localStorage`).
+* Consumir la API desde la aplicación web en un entorno integrado.
 
 ---
 
 ## 1. Requisitos
 
-Antes de comenzar, tener instalado:
-
 * Git
 * Docker Desktop
-* Postman
+* PHP y Composer
+* Postman (opcional)
 
 Comprobar Git:
 
@@ -31,23 +29,29 @@ Comprobar Docker:
 docker --version
 ```
 
+Comprobar PHP:
+
+```powershell
+php --version
+```
+
 ---
 
-## 2. Clonar el proyecto
+## 2. Clonar y preparar el proyecto
 
-Abrir PowerShell y ejecutar:
+Clonar el repositorio:
 
 ```powershell
 git clone URL_DEL_REPOSITORIO
 ```
 
-Entrar a la carpeta:
+Entrar a la carpeta raíz del proyecto:
 
 ```powershell
-cd api
+cd nombre-del-proyecto
 ```
 
-Cambiar a la rama de autenticación:
+Cambiar a la rama correspondiente:
 
 ```powershell
 git checkout feature/auth-api
@@ -55,69 +59,47 @@ git checkout feature/auth-api
 
 ---
 
-## 3. Crear el archivo `.env`
+## 3. Levantar el Backend (API en Docker)
 
-Copiar el archivo de ejemplo:
+### A. Crear el archivo `.env` del Backend
+
+Copiar el archivo de ejemplo en la raíz:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-No utilizar ni compartir el `.env` de otra computadora.
-
-Cada integrante debe tener su propio `.env`.
-
----
-
-## 4. Levantar Docker
-
-Desde la carpeta `api` ejecutar:
+### B. Levantar los contenedores
 
 ```powershell
 docker compose up -d
 ```
 
-Comprobar que los contenedores estén funcionando:
+Comprobar el estado de los contenedores:
 
 ```powershell
 docker compose ps
 ```
-
-Los servicios principales deben aparecer como `Up` o `running`.
 
 La API estará disponible en:
 
-```text
-http://localhost:8000
-```
+`http://localhost:8000`
 
----
+### C. Configurar Laravel en el contenedor
 
-## 5. Generar la APP_KEY
-
-Si el `.env` tiene `APP_KEY` vacío, ejecutar:
+Generar la llave de la aplicación:
 
 ```powershell
 docker compose exec app php artisan key:generate
 ```
 
----
-
-## 6. Ejecutar las migraciones
-
-Ejecutar:
+Ejecutar las migraciones de la base de datos:
 
 ```powershell
 docker compose exec app php artisan migrate
 ```
 
-Esto crea las tablas necesarias en la base de datos.
-
----
-
-## 7. Limpiar la configuración de Laravel
-
-Ejecutar:
+Limpiar la configuración y caché del backend:
 
 ```powershell
 docker compose exec app php artisan optimize:clear
@@ -125,192 +107,48 @@ docker compose exec app php artisan optimize:clear
 
 ---
 
-# 8. Probar el registro en Postman
+## 4. Levantar el Frontend (Aplicación Web)
 
-Abrir Postman y crear una petición nueva.
+Entrar a la carpeta de la interfaz web:
 
-### Método
-
-```text
-POST
+```powershell
+cd web
 ```
 
-### URL
+Instalar las dependencias de Composer:
 
-```text
-http://localhost:8000/api/register
+```powershell
+composer install
 ```
 
-### Body
+Configurar la URL de la API en el archivo `.env`:
 
-Seleccionar:
-
-```text
-Body → raw → JSON
+```env
+API_URL=http://localhost:8000/api
 ```
 
-Enviar:
+Limpiar la configuración y levantar el servidor web en el puerto `8001`:
 
-```json
-{
-    "name": "Juanito",
-    "email": "juanito@test.com",
-    "password": "12345678"
-}
+```powershell
+php artisan config:clear
+php artisan serve --port=8001
 ```
 
-Presionar **Send**.
+La interfaz web estará disponible en:
 
-Si funciona, la API debe responder con:
+`http://127.0.0.1:8001/login`
 
-```text
-201 Created
-```
+o
 
-y devolver un usuario y un token.
-
-Ejemplo:
-
-```json
-{
-    "message": "Usuario registrado correctamente.",
-    "user": {
-        "id": "...",
-        "name": "Juanito",
-        "email": "juanito@test.com"
-    },
-    "token": "..."
-}
-```
-
-El `id` y el `token` serán diferentes para cada usuario.
+`http://127.0.0.1:8001/register`
 
 ---
 
-# 9. Probar el Login en Postman
+## 5. Resumen rápido de comandos
 
-Crear otra petición.
-
-### Método
-
-```text
-POST
-```
-
-### URL
-
-```text
-http://localhost:8000/api/login
-```
-
-### Body
-
-Seleccionar:
-
-```text
-Body → raw → JSON
-```
-
-Enviar las mismas credenciales utilizadas durante el registro:
-
-```json
-{
-    "email": "juanito@test.com",
-    "password": "12345678"
-}
-```
-
-Presionar **Send**.
-
-Si funciona, debe devolver una respuesta exitosa junto con un token.
-
-Ejemplo:
-
-```json
-{
-    "message": "Login exitoso.",
-    "user": {
-        "id": "...",
-        "name": "Juanito",
-        "email": "juanito@test.com"
-    },
-    "token": "..."
-}
-```
-
----
-
-# 10. Problemas comunes
-
-### Docker no está iniciado
-
-Abrir Docker Desktop y volver a ejecutar:
+### Backend
 
 ```powershell
-docker compose up -d
-```
-
-### Ver los contenedores
-
-```powershell
-docker compose ps
-```
-
-### Ver los logs de la aplicación
-
-```powershell
-docker compose logs app
-```
-
-### Limpiar caché de Laravel
-
-```powershell
-docker compose exec app php artisan optimize:clear
-```
-
-### Ver las rutas de la API
-
-```powershell
-docker compose exec app php artisan route:list --path=api
-```
-
-Deben aparecer:
-
-```text
-POST  api/login
-POST  api/register
-```
-
----
-
-# 11. Importante
-
-No subir ni compartir el archivo:
-
-```text
-.env
-```
-
-El archivo que sí debe estar en GitLab es:
-
-```text
-.env.example
-```
-
-Cada integrante debe crear su propio `.env` usando:
-
-```powershell
-Copy-Item .env.example .env
-```
-
----
-
-# Resumen rápido
-
-Después de clonar el proyecto:
-
-```powershell
-cd api
 git checkout feature/auth-api
 Copy-Item .env.example .env
 docker compose up -d
@@ -319,16 +157,11 @@ docker compose exec app php artisan migrate
 docker compose exec app php artisan optimize:clear
 ```
 
-Después abrir Postman y probar:
+### Frontend
 
-```text
-POST http://localhost:8000/api/register
+```powershell
+cd web
+composer install
+php artisan config:clear
+php artisan serve --port=8001
 ```
-
-y:
-
-```text
-POST http://localhost:8000/api/login
-```
-
-Con esto se puede comprobar que la autenticación de la API funciona correctamente.

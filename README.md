@@ -54,7 +54,7 @@ cd nombre-del-proyecto
 Cambiar a la rama correspondiente:
 
 ```powershell
-git checkout feature/auth-api
+git checkout feature/integracion-web-api
 ```
 
 ---
@@ -149,7 +149,7 @@ o
 ### Backend
 
 ```powershell
-git checkout feature/auth-api
+git checkout feature/integracion-web-api
 Copy-Item .env.example .env
 docker compose up -d
 docker compose exec app php artisan key:generate
